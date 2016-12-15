@@ -29,6 +29,26 @@ def get_modified_time(page_index):
     return time.time() + seconds_in_hour * page_index
 
 
+def get_piwik():
+    piwik = """
+    <!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//piwik.linuxpl.com/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', 9702]);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//piwik.linuxpl.com/piwik.php?idsite=9702" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+"""
+    return piwik
+
 def write_header(f, page_index):
     header = """<!DOCTYPE html>
 <html>
@@ -43,6 +63,7 @@ body {background-color:ffffff;background-repeat:no-repeat;background-position:to
 h1{font-family:Arial;color:000000;}
 p {font-family:Arial;font-size:24px;font-style:normal;font-weight:normal;color:000000;}
 </style>
+""" + get_piwik() + """
 </head>
 <body>
 <h1>Transmisje z Rio godzina
@@ -55,7 +76,7 @@ p {font-family:Arial;font-size:24px;font-style:normal;font-weight:normal;color:0
 
 def write_footer(f):
     footer = """</p></body></html>"""
-
+    f.write(footer)
 
 def get_page_filename(page_index):
     filename = "index.html"
@@ -99,17 +120,21 @@ def create_page(page_index):
 def send_page(page_index):
     filename = get_page_filename(page_index)
     ftp = FTP('s34.linuxpl.com')
+    ftp.login(user='piotrbv', passwd='wyytm2705')
     ftp.cwd('public_html')  # change into "debian" directory
     ftp.storbinary('STOR ' + filename, open(filename, 'rb'))
     ftp.quit()
 
 
 def main():
-    for i in range(4):
-        create_page(i)
-    for i in range(4):
-        send_page(i)
-
+    while True:
+        for i in range(4):
+            create_page(i)
+        for i in range(4):
+            send_page(i)
+        ten_minutes = 10*60
+        print(time.localtime())
+        time.sleep(ten_minutes)
 
 if __name__ == "__main__":
     main()
