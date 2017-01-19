@@ -1,8 +1,10 @@
-from random import choice
+import random
 import numpy as np
 import scipy.stats as ss
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+from sklearn import datasets
+from sklearn.neighbors import KNeighborsClassifier
 
 
 def distance(p1, p2):
@@ -21,7 +23,7 @@ def majority_vote(votes):
     for vote, count in vote_counts.items():
         if count == max_count:
             winners.append(vote)
-    return choice(winners)
+    return random.choice(winners)
 
 
 def test_distance():
@@ -68,6 +70,26 @@ def nnk_test():
     # plt.axis([0.5, 3.5, 0.5, 3.5])
 
 
+def nnk_test_excercise9():
+    import pandas as pd
+    data = pd.read_csv("https://s3.amazonaws.com/demo-datasets/wine.csv")
+    numeric_data = data.drop("color", 1)
+    numeric_data = (numeric_data - np.mean(numeric_data, axis=0)) / np.std(numeric_data, axis=0)
+    predictors = np.array(numeric_data)
+
+    n_rows = data.shape[0]
+    random.seed(123)
+    selection = random.sample(range(n_rows), 10)
+
+    training_indices = [i for i in range(len(predictors)) if i not in selection]
+    outcomes = np.array(data["high_quality"])
+    predictions = [knn_predict(predictors[index], predictors, outcomes, k=5) for index in selection]
+    my_predictions = np.array(predictions)
+    high_quality = [data.high_quality[x] for x in selection]
+    percentage = accuracy(high_quality, my_predictions)
+    print(percentage)
+
+
 def generate_synth_data(n=50):
     x = ss.norm(0, 1).rvs((n, 2))
     y = ss.norm(0, 1).rvs((n, 2))
@@ -103,19 +125,23 @@ def generate_test():
     plt.plot(points[n:, 0], points[n:, 1], "bo")
     plt.savefig("bivariatdata.pdf")
 
-def plot_prediction_grid (xx, yy, prediction_grid, filename, predictors, outcomes):
+
+def plot_prediction_grid(xx, yy, prediction_grid, filename, predictors, outcomes):
     """ Plot KNN predictions for every point on the grid."""
-    background_colormap = ListedColormap (["hotpink","lightskyblue", "yellowgreen"])
-    observation_colormap = ListedColormap (["red","blue","green"])
-    plt.figure(figsize =(10,10))
-    plt.pcolormesh(xx, yy, prediction_grid, cmap = background_colormap, alpha = 0.5)
-    plt.scatter(predictors[:,0], predictors [:,1], c = outcomes, cmap = observation_colormap, s = 50)
-    plt.xlabel('Variable 1'); plt.ylabel('Variable 2')
-    plt.xticks(()); plt.yticks(())
-    plt.xlim (np.min(xx), np.max(xx))
-    plt.ylim (np.min(yy), np.max(yy))
+    background_colormap = ListedColormap(["hotpink", "lightskyblue", "yellowgreen"])
+    observation_colormap = ListedColormap(["red", "blue", "green"])
+    plt.figure(figsize=(10, 10))
+    plt.pcolormesh(xx, yy, prediction_grid, cmap=background_colormap, alpha=0.5)
+    plt.scatter(predictors[:, 0], predictors[:, 1], c=outcomes, cmap=observation_colormap, s=50)
+    plt.xlabel('Variable 1');
+    plt.ylabel('Variable 2')
+    plt.xticks(());
+    plt.yticks(())
+    plt.xlim(np.min(xx), np.max(xx))
+    plt.ylim(np.min(yy), np.max(yy))
     # plt.savefig(filename)
     plt.show()
+
 
 def prediction_test():
     predictors, outcomes = generate_synth_data()
@@ -127,9 +153,70 @@ def prediction_test():
     plot_prediction_grid(xx, yy, prediction_grid, file_name, predictors, outcomes)
 
 
+def sk_test():
+    iris = datasets.load_iris()
+    predictors = iris.data[:, 0:2]
+    outcomes = iris.target
+    # plt.plot(predictors[outcomes == 0][:, 0], predictors[outcomes == 0][:, 1], "ro")
+    # plt.plot(predictors[outcomes == 1][:, 0], predictors[outcomes == 1][:, 1], "go")
+    # plt.plot(predictors[outcomes == 2][:, 0], predictors[outcomes == 2][:, 1], "bo")
+    # plt.show()
+    k = 5
+    file_name = "knn_synth5.pdf"
+    limits = (4, 8, 1.5, 4.5)
+    h = 0.1
+    xx, yy, prediction_grid = make_prediction_grid(predictors, outcomes, limits, h, k)
+    # plot_prediction_grid(xx, yy, prediction_grid, file_name, predictors, outcomes)
+    knn = KNeighborsClassifier(n_neighbors=5)
+    knn.fit(predictors, outcomes)
+    sk_predictions = knn.predict(predictors)
+    my_prediction = np.array([knn_predict(p, predictors, outcomes, 5) for p in predictors])
+    print(100 * np.mean(my_prediction == sk_predictions))
+    print(100 * np.mean(outcomes == sk_predictions))
+    print(100 * np.mean(my_prediction == outcomes))
+
+
+def exercise_test():
+    import pandas as pd
+    data = pd.read_csv("https://s3.amazonaws.com/demo-datasets/wine.csv")
+    numeric_data = data.drop("color", 1)
+    # print(numeric_data[-3:])
+    import sklearn.decomposition
+    # numeric_data = numeric_data.subtract(np.mean(numeric_data))
+    # numeric_data = numeric_data.divide(np.average(numeric_data))
+    numeric_data = (numeric_data - np.mean(numeric_data, axis=0)) / np.std(numeric_data, axis=0)
+
+    import sklearn.decomposition
+    pca = sklearn.decomposition.PCA(2)
+    principal_components = pca.fit(numeric_data).transform(numeric_data)
+    print(principal_components)
+    n_rows = data.shape[0]
+
+    random.seed(123)
+    selection = random.sample(range(n_rows), 10)
+    print(selection)
+
+    # print(principal_components[:, 0])
+    # print(principal_components[:, 1])
+
+
+def accuracy(predictions, outcomes):
+    same = 100 * np.mean(predictions == outcomes)
+    return same
+
+
+def accuracy_test():
+    x = np.array([1, 2, 3])
+    y = np.array([1, 2, 4])
+    print(accuracy(x, y))
+
 
 if __name__ == '__main__':
-    prediction_test()
+    # accuracy_test()
+    # exercise_test()
+    nnk_test_excercise9()
+    # sk_test()
+    # prediction_test()
     # nnk_test()
     # generate_test()
     # test_vote()
