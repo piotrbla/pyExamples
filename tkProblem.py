@@ -136,8 +136,14 @@ class ResistorCalculator:
         # KeyError exception when there are not enough values to calculate
         except KeyError:
             self.error_not_enough_args()
+
     def check_button(self):
-        self.band3.configure(state='disabled')
+        check_state = var.get()
+        if check_state:
+            self.band3.configure(state='disabled')
+        else:
+            self.band3.configure(state='enabled')
+
 
     # Function to build a GUI window and all of it's widgets.
     def build_window(self):
@@ -145,6 +151,7 @@ class ResistorCalculator:
         ccbb = Checkbutton(self.parent, text="No. of bands, check if u want 4", variable=var, offvalue=0,
                            onvalue=1, command = self.check_button)
         ccbb.grid(row=0, columnspan=2)
+        self.ccbb = ccbb
         # Band 1
         band1_label = tk.Label(self.parent, text="Band 1")
         band1_label.grid(row=1, column=0, ipadx=30, pady=5)
