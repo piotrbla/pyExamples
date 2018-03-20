@@ -16,3 +16,22 @@ seconders = sorted([x[0] for x in students if x[1] == second_min])
 
 for student in seconders:
     print(student)
+
+
+def a():
+    return 1
+
+
+def b():
+    return 2
+
+
+def c():
+    return 3
+
+
+def aa():
+    return a() + b()
+
+
+foo = aa()
