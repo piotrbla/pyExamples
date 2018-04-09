@@ -23,4 +23,5 @@ class Board:
 
 b = Board()
 b.print()
+b.print()
 
