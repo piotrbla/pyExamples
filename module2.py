@@ -1,3 +1,3 @@
-import module3
+from module3 import weirdfun
 
 print("module2")
