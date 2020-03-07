@@ -1,7 +1,49 @@
 from tkinter import *
 
-HALF_SIZE = 35
-MARGIN = 100
+MARGIN = 20
+
+
+class Room:
+    def __init__(self):
+        self.north = None
+        self.south = None
+        self.west = None
+        self.east = None
+        self.is_wall = False
+
+
+def set_rooms_horizontal(room_w, room_e):
+    room_w.east = room_e
+    room_e.west = room_w
+
+
+def set_rooms_vertical(room_n, room_s):
+    room_n.south = room_s
+    room_s.north = room_n
+
+
+def create_walls(drawing, x, y):
+    x_end = x + ROOM_SIZE
+    y_end = y + ROOM_SIZE
+    x_end_wall = x + WALL_SIZE
+    y_end_wall = y + WALL_SIZE
+    x_begin_wall = x_end - WALL_SIZE
+    y_begin_wall = y_end - WALL_SIZE
+
+    drawing.create_line(x, y, x_end_wall, y, fill='blue')
+    drawing.create_line(x, y, x, y_end_wall, fill='blue')
+    drawing.create_line(x_begin_wall, y, x_end, y, fill='blue')
+    drawing.create_line(x_end, y, x_end, y_end_wall, fill='blue')
+    drawing.create_line(x, y_end, x_end_wall, y_end, fill='blue')
+    drawing.create_line(x, y_begin_wall, x, y_end, fill='blue')
+    drawing.create_line(x_begin_wall, y_end, x_end, y_end, fill='blue')
+    drawing.create_line(x_end, y_begin_wall, x_end, y_end, fill='blue')
+
+
+def write_number(rysunek, x_val, y_val, i):
+    bigger_font = ('arial', 12, 'bold')
+    rysunek.create_text(x_val + WALL_SIZE, y_val + WALL_SIZE, text=str(i), font=bigger_font)
+
 
 okno = Tk()
 Label(okno, text='Labirynty').grid(row=0)
@@ -9,27 +51,63 @@ Label(okno, text='Rekurencja').grid(row=1)
 Button(okno, text='Rozwiąż brute-force').grid(row=0, column=1, sticky=W)
 Button(okno, text='Rozwiąż inaczej').grid(row=1, column=1, sticky=W)
 ramka = Frame(okno)
-rysunek = Canvas(ramka, bg='cornsilk', width=1024, height=768)
+rysunek = Canvas(ramka, bg='cornsilk', width=1648, height=1268)
 rysunek.pack(fill=X)
-rysunek.create_text(190, 8, text='Piszę sobie po rysunku, Zażółć gęślą jaźń.', font=('arial', 8, 'bold'))
-xVal= MARGIN
-yVal= MARGIN
-even = True
-for row in range(8, 0, -1):
-    for line in "abcdefgh":
-        print (line + str(row), end=' ')
-        if even:
-            fill = 'white smoke'
+arial_font = ('arial', 8, 'bold')
+rysunek.create_text(190, 8, text='Piszę sobie po rysunku, Zażółć gęślą jaźń.', font=arial_font)
+x_val = MARGIN
+y_val = MARGIN
+rows = ["..#.................",
+        "....#....#####......",
+        "......##.........#..",
+        ".......#........#...",
+        "...#...#............",
+        ".......#.......#....",
+        ".......#......#.....",
+        "....#...............",
+        ".............#......",
+        "............#.......",
+        ".....#..............",
+        ".......#............",
+        "...........#........",
+        "......#.............",
+        "......#...#.........",
+        "..............#.....",
+        ".....#....#.........",
+        "...............#....",
+        ".........#..........",
+        "................#..."]
+
+ROOM_SIZE = 60
+WALL_SIZE = ROOM_SIZE // 2 - 6
+fill_room = 'light grey'
+fill_wall = 'saddle brown'
+level_map = []
+for row in rows:
+    level_row = []
+    for c in row:
+        room = Room()
+        if c == '#':
+            room.is_wall = True
+        level_row.append(room)
+    level_map.append(level_row)
+
+i = 0
+
+for row in level_map:
+    for room in row:
+        if room.is_wall:
+            fill = fill_wall
         else:
-            fill = 'saddle brown'
-        even = not even
-        rysunek.create_line(xVal - HALF_SIZE, yVal - HALF_SIZE, xVal + HALF_SIZE, yVal + HALF_SIZE)
-        # rysunek.create_rectangle(xVal - HALF_SIZE, yVal - HALF_SIZE, xVal + HALF_SIZE, yVal + HALF_SIZE, fill=fill)
+            fill = fill_room
+        rysunek.create_rectangle(x_val, y_val, x_val + ROOM_SIZE, y_val + ROOM_SIZE, fill=fill, outline=fill)
+        create_walls(rysunek, x_val, y_val)
+        write_number(rysunek, x_val, y_val, i)
         # rysunek.create_text(xVal, yVal, text=line + str(row), font=('arial', 8, 'bold'))
-        xVal+=2*HALF_SIZE
-    xVal = MARGIN
-    yVal+=2*HALF_SIZE
-    even = not even
+        x_val += ROOM_SIZE + 2
+        i += 1
+    x_val = MARGIN
+    y_val += ROOM_SIZE + 1
 
 ramka.grid(row=3, columnspan=2)
 rysunek.configure()
