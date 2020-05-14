@@ -42,7 +42,7 @@ def create_walls(drawing, x, y):
 
 def write_number(rysunek, x_val, y_val, i):
     bigger_font = ('arial', 12, 'bold')
-    rysunek.create_text(x_val + WALL_SIZE, y_val + WALL_SIZE, text=str(i), font=bigger_font)
+    rysunek.create_text(x_val + WALL_SIZE+5, y_val + WALL_SIZE+7, text=str(i), font=bigger_font)
 
 
 okno = Tk()
@@ -54,10 +54,28 @@ ramka = Frame(okno)
 rysunek = Canvas(ramka, bg='cornsilk', width=1648, height=1268)
 rysunek.pack(fill=X)
 arial_font = ('arial', 8, 'bold')
-rysunek.create_text(190, 8, text='Piszę sobie po rysunku, Zażółć gęślą jaźń.', font=arial_font)
+# rysunek.create_text(190, 8, text='Piszę sobie po rysunku, Zażółć gęślą jaźń.', font=arial_font)
 x_val = MARGIN
 y_val = MARGIN
 rows = ["..#.................",
+        "....#....#####......",
+        "......##.........#..",
+        ".......#........#...",
+        "...#...#............",
+        ".......#.......#....",
+        ".......#......#.....",
+        "....#...............",
+        ".............#......",
+        "............#.......",
+        ".....#..............",
+        ".......#............",
+        "...........#........",
+        "......#.............",
+        "......#...#.........",
+        "..............#.....",
+        "................#..."]
+
+rows_big = ["..#.................",
         "....#....#####......",
         "......##.........#..",
         ".......#........#...",
