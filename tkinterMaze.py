@@ -42,19 +42,19 @@ def create_walls(drawing, x, y):
 
 def write_number(rysunek, x_val, y_val, i):
     bigger_font = ('arial', 12, 'bold')
-    rysunek.create_text(x_val + WALL_SIZE+5, y_val + WALL_SIZE+7, text=str(i), font=bigger_font)
+    canvas.create_text(x_val + WALL_SIZE+5, y_val + WALL_SIZE+7, text=str(i), font=bigger_font)
 
 
-okno = Tk()
-Label(okno, text='Labirynty').grid(row=0)
-Label(okno, text='Rekurencja').grid(row=1)
-Button(okno, text='Rozwiąż brute-force').grid(row=0, column=1, sticky=W)
-Button(okno, text='Rozwiąż inaczej').grid(row=1, column=1, sticky=W)
-ramka = Frame(okno)
-rysunek = Canvas(ramka, bg='cornsilk', width=1648, height=1268)
-rysunek.pack(fill=X)
+tk_window = Tk()
+Label(tk_window, text='Labirynty').grid(row=0)
+Label(tk_window, text='Rekurencja').grid(row=1)
+Button(tk_window, text='Rozwiąż brute-force').grid(row=0, column=1, sticky=W)
+Button(tk_window, text='Rozwiąż inaczej').grid(row=1, column=1, sticky=W)
+frame = Frame(tk_window)
+canvas = Canvas(frame, bg='cornsilk', width=1648, height=1268)
+canvas.pack(fill=X)
 arial_font = ('arial', 8, 'bold')
-# rysunek.create_text(190, 8, text='Piszę sobie po rysunku, Zażółć gęślą jaźń.', font=arial_font)
+# canvas.create_text(190, 8, text='Piszę sobie po rysunku, Zażółć gęślą jaźń.', font=arial_font)
 x_val = MARGIN
 y_val = MARGIN
 rows = ["..#.................",
@@ -118,15 +118,15 @@ for row in level_map:
             fill = fill_wall
         else:
             fill = fill_room
-        rysunek.create_rectangle(x_val, y_val, x_val + ROOM_SIZE, y_val + ROOM_SIZE, fill=fill, outline=fill)
-        create_walls(rysunek, x_val, y_val)
-        write_number(rysunek, x_val, y_val, i)
-        # rysunek.create_text(xVal, yVal, text=line + str(row), font=('arial', 8, 'bold'))
+        canvas.create_rectangle(x_val, y_val, x_val + ROOM_SIZE, y_val + ROOM_SIZE, fill=fill, outline=fill)
+        create_walls(canvas, x_val, y_val)
+        # write_number(canvas, x_val, y_val, i)
+        # canvas.create_text(xVal, yVal, text=line + str(row), font=('arial', 8, 'bold'))
         x_val += ROOM_SIZE + 2
         i += 1
     x_val = MARGIN
     y_val += ROOM_SIZE + 1
 
-ramka.grid(row=3, columnspan=2)
-rysunek.configure()
-okno.mainloop()
+frame.grid(row=3, columnspan=2)
+canvas.configure()
+tk_window.mainloop()
