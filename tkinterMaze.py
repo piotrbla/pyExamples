@@ -4,7 +4,7 @@ MARGIN = 20
 ROOM_SIZE = 60
 WALL_SIZE = ROOM_SIZE // 2 - 6
 level_map = []
-
+iteration_counter = 0
 
 class Room:
     def __init__(self):
@@ -13,6 +13,8 @@ class Room:
         self.west = None
         self.east = None
         self.is_wall = False
+        self.visited = False
+        self.distance = -1
 
 
 def set_rooms_horizontal(room_w, room_e):
@@ -54,27 +56,59 @@ def write_number(drawing, x_val, y_val, i, fill):
     drawing.create_text(x_with_wall_size + 5, y_with_wall_size + 7, text=str(i), font=bigger_font)
 
 
+def can_go(room, distance):
+    global iteration_counter
+    if iteration_counter % 40 == 0:
+        draw_map()
+    iteration_counter += 1
+    if not room:
+        return False
+    if not room.visited:
+        return True
+    if distance < room.distance:
+        return True
+    return False
+
+
+def go_room(room, distance):
+    room.visited = True
+    room.distance = distance
+    if can_go(room.east, distance + 1):
+        go_room(room.east, distance + 1)
+    if can_go(room.west, distance + 1):
+        go_room(room.west, distance + 1)
+    if can_go(room.north, distance + 1):
+        go_room(room.north, distance + 1)
+    if can_go(room.south, distance + 1):
+        go_room(room.south, distance + 1)
+
+
 def brute_force():
     from time import sleep
+    go_room(level_map[0][0], 0)
+    sleep(0.1)
+    draw_map()
+
+
+def draw_map():
     fill_room = 'light grey'
     fill_wall = 'saddle brown'
-    for j in range(10):
-        i = 0
+    i = 0
+    x_val = MARGIN
+    y_val = MARGIN
+    for row in level_map:
+        for room in row:
+            if room.is_wall:
+                fill = fill_wall
+            else:
+                fill = fill_room
+            write_number(canvas, x_val, y_val, room.distance, fill)
+            x_val += ROOM_SIZE + 2
+            i += 1
         x_val = MARGIN
-        y_val = MARGIN
-        for row in level_map:
-            for room in row:
-                if room.is_wall:
-                    fill = fill_wall
-                else:
-                    fill = fill_room
-                write_number(canvas, x_val, y_val, i+j, fill)
-                x_val += ROOM_SIZE + 2
-                i += 1
-            x_val = MARGIN
-            y_val += ROOM_SIZE + 1
-        canvas.update_idletasks()
-        sleep(0.1)
+        y_val += ROOM_SIZE + 1
+    canvas.update_idletasks()
+
 
 tk_window = Tk()
 Label(tk_window, text='Labirynty').grid(row=0)
@@ -127,6 +161,7 @@ rows_big = ["..#.................",
 
 
 def main():
+    iteration_counter = 0
     fill_room = 'light grey'
     fill_wall = 'saddle brown'
     for row in rows:
@@ -137,6 +172,10 @@ def main():
                 room.is_wall = True
             level_row.append(room)
         level_map.append(level_row)
+    for y, row in enumerate(level_map[:-1:]):
+        for x, room in enumerate(row[:-1:]):
+            set_rooms_horizontal(room, level_map[y][x + 1])
+            set_rooms_vertical(room, level_map[y + 1][x])
 
     i = 0
     x_val = MARGIN
